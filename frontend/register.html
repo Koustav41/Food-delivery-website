@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CraveBite">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <title>Register - CraveBite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="shortcut icon" type="jpg" href="img/Cravebite logo(new1) (2).png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            margin-bottom: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .auth-link {
+            margin-top: 1.5rem;
+            display: block;
+            color: var(--text-secondary);
+        }
+
+        .auth-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-burger"></i> CraveBite
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Menu</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="view-orders.html">View Orders</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-count" id="nav-cart-count">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button id="theme-toggle" class="theme-btn" type="button" aria-label="Toggle theme">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="auth-container animate-fade-in">
+            <h2>Create an Account</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Sign Up</button>
+            </form>
+            <div class="auth-link">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Phase 3 placeholder logic (will use API)
+            handleRegister(document.getElementById('username').value, document.getElementById('password').value);
+        });
+    </script>
+</body>
+
+</html>

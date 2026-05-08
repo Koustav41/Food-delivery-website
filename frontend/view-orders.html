@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CraveBite">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <title>View Orders - CraveBite</title>
+    <link rel="shortcut icon" type="jpg" href="img/Cravebite logo(new1) (2).png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="bg-mesh"></div>
+
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-burger"></i> CraveBite
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Menu</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="view-orders.html" class="active">View Orders</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-count" id="nav-cart-count">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button id="theme-toggle" class="theme-btn" type="button" aria-label="Toggle theme">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container orders-page">
+        <div class="orders-page-header animate-fade-in">
+            <div>
+                <h1>View Orders</h1>
+                <p>Track your food from kitchen confirmation to doorstep delivery.</p>
+            </div>
+            <button class="btn btn-outline" type="button" onclick="renderCustomerOrders()">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+        </div>
+
+        <div id="customer-orders-list" class="customer-orders-list animate-fade-in">
+            <!-- Customer orders will be rendered here -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 CraveBite Delivery. All rights reserved.</p>
+            <div class="footer-row">
+                <p>Follow us on:
+                    <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-twitter"></i></a>
+                </p>
+            </div>
+            <div class="footer-row">
+                <p>Contact us:
+                    <a href="#" style="margin: 0 0.5rem;"><i class="fa-solid fa-envelope"></i> cravebite@gmail.com</a>
+                    <a href="#" style="margin: 0 0.5rem;"><i class="fa-solid fa-phone"></i> 8240816913</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCustomerOrders();
+        });
+    </script>
+</body>
+
+</html>

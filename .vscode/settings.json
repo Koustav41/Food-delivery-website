@@ -1,0 +1,8 @@
+{
+    "liveServer.settings.port": 5530,
+    "python.testing.pytestArgs": [
+        "frontend"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

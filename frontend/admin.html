@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CraveBite">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <title>Admin Dashboard - CraveBite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="shortcut icon" type="jpg" href="img/Cravebite logo(new1) (2).png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .admin-sidebar {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+        }
+
+        .admin-sidebar ul {
+            list-style: none;
+        }
+
+        .admin-sidebar li {
+            margin-bottom: 1rem;
+        }
+
+        .admin-sidebar a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .admin-sidebar a:hover,
+        .admin-sidebar a.active {
+            background: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        .admin-content {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-burger"></i> CraveBite <span
+                    style="font-size: 1rem; color: var(--text-secondary);">Admin</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Back to Site</a></li>
+                    <li><a href="admin-login.html" onclick="handleAdminLogout(event)">Logout</a></li>
+                    <li>
+                        <button id="theme-toggle" class="theme-btn" type="button" aria-label="Toggle theme">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="admin-container">
+            <div class="admin-sidebar">
+                <ul>
+                    <li><a href="admin.html" class="active"><i class="fa-solid fa-utensils"></i> Manage Menu</a></li>
+                    <li><a href="orders.html"><i class="fa-solid fa-receipt"></i> View Orders</a></li>
+                </ul>
+            </div>
+            <div class="admin-content animate-fade-in">
+                <h2 style="margin-bottom: 1.5rem;">Add New Food Item</h2>
+                <form id="add-food-form">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="food-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="food-desc" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price ₹(INR)</label>
+                        <input type="number" id="food-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Food Image</label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <input type="file" id="food-image-file" accept="image/*"
+                                style="padding: 0.5rem; border: 1px dashed #ccc; background: var(--bg-color);">
+                            <div style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">OR</div>
+                            <input type="text" id="food-image-url" placeholder="Image URL (e.g. img/burger.png)">
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="food-is-veg" style="width: auto;">
+                        <label for="food-is-veg" style="margin-bottom: 0;">Is Vegetarian?</label>
+                    </div>
+                    <button type="submit" class="btn">Add Item</button>
+                </form>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid #eee;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0;">Current Menu Items</h2>
+                    <button type="button"
+                        onclick="if(confirm('Storage Full? Click OK to delete all menu items and start over.')) { localStorage.removeItem('cravebite_foods'); location.reload(); }"
+                        class="btn" style="background: #dc3545; padding: 0.5rem 1rem;">Reset All Data</button>
+                </div>
+                <div id="admin-food-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Admin food items will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.getElementById('add-food-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('food-image-file');
+            const urlInput = document.getElementById('food-image-url');
+            let imageUrl = urlInput.value.trim();
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                try {
+                    imageUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_WIDTH = 250;
+                                let scaleSize = 1;
+                                if (img.width > MAX_WIDTH) {
+                                    scaleSize = MAX_WIDTH / img.width;
+                                }
+                                canvas.width = img.width * scaleSize;
+                                canvas.height = img.height * scaleSize;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                resolve(canvas.toDataURL('image/jpeg', 0.5));
+                            };
+                            img.onerror = reject;
+                            img.src = e.target.result;
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                } catch (error) {
+                    showToast("Error processing image file.");
+                    return;
+                }
+            } else if (!imageUrl) {
+                // Fallback default
+                imageUrl = 'img/burger.png';
+            }
+
+            const data = {
+                title: document.getElementById('food-title').value,
+                description: document.getElementById('food-desc').value,
+                price: parseFloat(document.getElementById('food-price').value),
+                image: imageUrl,
+                is_veg: document.getElementById('food-is-veg').checked
+            };
+
+            // Call local function instead of API
+            const result = addFood(data);
+            if (result.error) {
+                showToast(result.error);
+            } else {
+                showToast(result.message);
+                document.getElementById('add-food-form').reset();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -208,15 +208,15 @@ nav a.active::after {
 
 /* Premium Hero Banner */
 .hero-banner {
-  background-image: url('../img/hero_banner_full.png');
+  background-image: url('../img/Untitled (1).jpeg');
   background-color: #f26b27;
-  background-size: 100%;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 30px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   position: relative;
   padding: 5rem 4rem;
   min-height: 300px;

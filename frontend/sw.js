@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cravebite-cache-v1';
+const CACHE_NAME = 'cravebite-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -22,5 +22,20 @@ self.addEventListener('fetch', event => {
       .then(response => {
         return response || fetch(event.request);
       })
+  );
+});
+
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });

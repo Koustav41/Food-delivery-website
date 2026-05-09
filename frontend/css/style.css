@@ -75,7 +75,7 @@ header {
 .logo {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--primary-color);
+  color: #e63946; /* Changed from var(--primary-color) to red */
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -93,26 +93,36 @@ header {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: var(--text-secondary);
-  background: rgba(233, 37, 53, 0.1);
+  color: #ffffff;
+  background: rgba(30, 30, 30, 0.85);
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .header-location:hover {
-  background: rgba(233, 37, 53, 0.2);
-  color: var(--text-primary);
+  background: rgba(0, 0, 0, 1);
+  color: #ffffff;
   transform: scale(1.05);
 }
 
 .header-location i {
-  color: var(--primary-color);
+  color: #ffb703;
+}
+
+body.dark-theme .header-location {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+body.dark-theme .header-location:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .logo i {
-  color: var(--primary-color);
+  color: #e63946; /* Changed from var(--primary-color) to red */
 }
 
 nav ul {

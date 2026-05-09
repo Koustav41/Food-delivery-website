@@ -1740,11 +1740,26 @@ body.dark-theme .payment-footer {
     border-radius: 18px;
     background-size: cover;
     background-position: center;
+    padding: 3rem 1.5rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .hero-title {
-    font-size: 2rem;
-    line-height: 1.12;
+    font-size: 2.2rem;
+    line-height: 1.15;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
   }
 
   .food-grid {
@@ -1873,6 +1888,11 @@ body.dark-theme .payment-footer {
 
   .hero-title {
     font-size: 1.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .section-title {

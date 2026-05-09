@@ -127,6 +127,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderAdminOrders();
         });
+
+        // Listen for changes in localStorage from other tabs
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'cravebite_orders') {
+                renderAdminOrders();
+            }
+        });
     </script>
 </body>
 

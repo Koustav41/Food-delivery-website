@@ -1,4 +1,4 @@
-﻿let foodItems = []; // Will be fetched from API
+let foodItems = []; // Will be fetched from API
 let currentFilter = 'all'; // 'all', 'veg', 'non-veg'
 let searchQuery = '';
 
@@ -63,6 +63,16 @@ function handleFoodImageError(img, fallback = FALLBACK_FOOD_IMAGE) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
+
     loadSavedTheme();
     updateCartCount();
     updateAuthUI();

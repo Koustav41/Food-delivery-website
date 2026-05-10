@@ -889,8 +889,8 @@ function togglePaymentDetails() {
 function verifyUPI(btn) {
     const input = document.getElementById('upi-id-input');
     const msg = document.getElementById('upi-verify-msg');
-
-    if (!input || !input.value.includes('@')) {
+    const upiPattern = /^[\w.-]+@[\w.-]+$/;
+    if (!upiPattern.test(input.value.trim())) {
         msg.innerHTML = '<span style="color: #dc3545;"><i class="fa-solid fa-circle-xmark"></i> Please enter a valid UPI ID (e.g., name@bank)</span>';
         return;
     }
@@ -901,15 +901,21 @@ function verifyUPI(btn) {
     input.disabled = true;
     const originalText = btn.innerHTML;
     btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
 
     setTimeout(() => {
-        msg.innerHTML = '<span style="color: #28a745; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Verified: ' + input.value.split('@')[0].toLowerCase() + '</span>';
+        const domain = input.value.split('@')[1].toLowerCase();
+        const username = input.value.split('@')[0].toLowerCase();
+        if (domain === 'gmail.com') {
+            msg.innerHTML = '<span style="color: #dc3545;"><i class="fa-solid fa-circle-xmark"></i> Not verified: Gmail UPI not supported</span>';
+        } else {
+            msg.innerHTML = '<span style="color: #28a745; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Verified: ' + username + '</span>';
+        }
         input.disabled = false;
         btn.disabled = false;
         btn.innerHTML = originalText;
     }, 1500);
 }
-
 
 function processPayment() {
     const selected = document.querySelector('input[name="payment_method"]:checked').value;

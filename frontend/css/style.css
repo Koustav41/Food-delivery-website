@@ -22,7 +22,7 @@ body.dark-theme {
   --bg-color: #0f172a;
   --surface-color: #111827;
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
+  --text-secondary: #f5f8fd;
   --glass-bg: rgba(15, 23, 42, 0.85);
   --glass-border: rgba(148, 163, 184, 0.18);
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.25);
@@ -314,7 +314,7 @@ nav a.active::after {
   outline: none;
   width: 100%;
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: #050101;
   background: transparent;
 }
 
@@ -2052,5 +2052,6 @@ body.dark-theme .restaurant-info-section {
  . c o i n s - v a l u e   { 
      f o n t - w e i g h t :   7 0 0 ; 
      c o l o r :   # d c 3 5 4 5 ; 
- }  
+ } 
+ 
  

@@ -292,7 +292,49 @@ function fetchFoods() {
             image: "img/mango-lassi.png",
             is_veg: true,
             rating: 4.8
-        }
+        },
+        {
+            id: 16,
+            title: "Chicken Biryani",
+            description: "Aromatic rice dish layered with tender chicken and a rich, spiced sauce.",
+            price: 240,
+            image: "img/FZgBhWpXwAEDjBm.jpg",
+            is_veg: false,
+            rating: 4.9
+        },
+         {
+            id: 17,
+            title: "Mutton Biryani",
+            description: "Aromatic rice dish layered with tender mutton and a rich, spiced sauce.",
+            price: 340,
+            image: "img/Gemini_Generated_Image_yjcvbyjcvbyjcvby.png",
+            rating: 4.9
+        },
+         {
+            id: 18,
+            title: "Chicken Momos(8pcs.)",
+            description: "Steamed dumplings filled with minced chicken and vegetables, served with a spicy dipping sauce.",
+            price: 100,
+            image: "img/Gemini_Generated_Image_x18echx18echx18e.png",
+            rating: 4.5
+        },
+         {
+            id: 19,
+            title: "Veg Momos(8pcs.)",
+            description: "Steamed dumplings filled with minced vegetables, served with a spicy dipping sauce.",
+            price: 80,
+            image: "img/Gemini_Generated_Image_np71bnnp71bnnp71.png",
+            rating: 4.3
+        },
+         {
+            id: 20,
+            title: "Gourment ice cream(2 scoops)",
+            description: "Rich and creamy ice cream available in various flavors, perfect for a sweet ending to your meal.",
+            price: 100,
+            image: "img/Gemini_Generated_Image_tuahmbtuahmbtuah.png",
+            rating: 4.9
+        },
+        
     ];
 
     if (localFoods) {

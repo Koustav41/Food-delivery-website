@@ -17,7 +17,7 @@ def create_app():
              r'null'
          ],
          supports_credentials=True,
-         allow_headers=['Content-Type', 'Authorization', 'X-User-Id'],
+         allow_headers=['Content-Type', 'Authorization'],
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     
     # Configuration

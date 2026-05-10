@@ -1,5 +1,5 @@
 {
-    "liveServer.settings.port": 5538,
+    "liveServer.settings.port": 5540,
     "python.testing.pytestArgs": [
         "frontend"
     ],

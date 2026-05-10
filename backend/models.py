@@ -24,6 +24,8 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default='Pending') # Pending, Completed, Cancelled
+    address = db.Column(db.String(255), nullable=True)
+    payment_method = db.Column(db.String(50), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User', backref=db.backref('orders', lazy=True))

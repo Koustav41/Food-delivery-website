@@ -911,49 +911,59 @@ function verifyUPI(btn) {
 }
 
 
-function processPayment() {
+function getAuthHeaders(extraHeaders = {}) {
+    const user = JSON.parse(localStorage.getItem('cravebite_user') || localStorage.getItem('cravebite_admin') || 'null');
+    const headers = { 'Content-Type': 'application/json', ...extraHeaders };
+    if (user && user.id) {
+        headers['X-User-Id'] = user.id;
+    }
+    return headers;
+}
+
+async function processPayment() {
     const selected = document.querySelector('input[name="payment_method"]:checked').value;
 
     const payBtn = document.querySelector('.payment-footer .btn');
     payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
     payBtn.disabled = true;
 
-    setTimeout(() => {
-        // Save order to localStorage before clearing the cart
-        const orders = JSON.parse(localStorage.getItem('cravebite_orders') || '[]');
-        const currentUser = JSON.parse(localStorage.getItem('cravebite_user') || '{"username": "Guest"}');
-        const newOrder = {
-            id: 'ORD-' + Math.floor(Math.random() * 1000000),
-            date: new Date().toISOString(),
-            items: [...cart],
-            total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-            paymentMethod: selected,
-            address: localStorage.getItem('cravebite_delivery_address') || 'Not specified',
-            user: currentUser.username,
-            userId: currentUser.id,
-            status: 'Pending',
-            updatedAt: new Date().toISOString(),
-            statusHistory: [
-                { status: 'Pending', date: new Date().toISOString() }
-            ]
-        };
-        orders.unshift(newOrder); // Add to beginning of array
-        localStorage.setItem('cravebite_orders', JSON.stringify(orders));
+    try {
+        const address = localStorage.getItem('cravebite_delivery_address') || 'Not specified';
+        const response = await fetch(`${API_BASE}/orders`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                items: cart,
+                address: address,
+                paymentMethod: selected
+            }),
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            closePaymentModal();
+            cart = [];
+            saveCart();
+            renderCartPage();
 
-        closePaymentModal();
-        cart = [];
-        saveCart();
-        renderCartPage();
+            let msg = selected === 'cod' ? 'Order placed successfully! Pay on delivery.' : 'Payment successful! Order placed.';
+            showToast(msg);
+            showToast('Thank you for ordering with CraveBite!');
 
-        let msg = selected === 'cod' ? 'Order placed successfully! Pay on delivery.' : 'Payment successful! Order placed.';
-        showToast(msg);
-        showToast('Thank you for ordering with CraveBite! Your food will be delivered to your address.');
-
-        const modal = document.getElementById('payment-modal');
-        if (modal) modal.remove();
-        setTimeout(() => window.location.href = 'view-orders.html', 1200);
-
-    }, 1500);
+            const modal = document.getElementById('payment-modal');
+            if (modal) modal.remove();
+            setTimeout(() => window.location.href = 'view-orders.html', 1200);
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to place order. Please make sure you are logged in.');
+            payBtn.innerHTML = 'Pay Now';
+            payBtn.disabled = false;
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
+        payBtn.innerHTML = 'Pay Now';
+        payBtn.disabled = false;
+    }
 }
 
 // --- Customer Order Tracking ---
@@ -1009,14 +1019,17 @@ function getCurrentCustomer() {
     }
 }
 
-function getCustomerOrders() {
-    const user = getCurrentCustomer();
-    if (!user) return [];
-
-    const orders = JSON.parse(localStorage.getItem('cravebite_orders') || '[]');
-    return orders.filter(order => {
-        return order.user === user.username || (!order.user && order.userId && order.userId === user.id);
-    });
+async function getCustomerOrders() {
+    try {
+        const response = await fetch(`${API_BASE}/orders`, { headers: getAuthHeaders() });
+        if (response.ok) {
+            return await response.json();
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        return [];
+    }
 }
 
 function buildOrderTimeline(status) {
@@ -1067,7 +1080,7 @@ function getEstimatedDeliveryText(order) {
     return eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function renderCustomerOrders() {
+async function renderCustomerOrders() {
     const container = document.getElementById('customer-orders-list');
     if (!container) return;
 
@@ -1084,7 +1097,7 @@ function renderCustomerOrders() {
         return;
     }
 
-    const orders = getCustomerOrders();
+    const orders = await getCustomerOrders();
     if (orders.length === 0) {
         container.innerHTML = `
             <div class="orders-empty-state">
@@ -1209,43 +1222,104 @@ function showToast(message) {
 
 // --- Auth Handling ---
 async function handleLogin(username, password) {
-    // Mock login without backend
-    const user = { id: username.trim().toLowerCase(), username: username, role: 'user' };
-    localStorage.setItem('cravebite_user', JSON.stringify(user));
-    showToast('Logged in successfully!');
-
-    // Auto-detect location on login
-    detectLocation();
-
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 1000);
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            localStorage.setItem('cravebite_user', JSON.stringify(data.user));
+            showToast('Logged in successfully!');
+            detectLocation();
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        } else {
+            showToast(data.error || 'Login failed');
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
+    }
 }
 
 async function handleAdminLogin(username, password) {
-    // Mock admin login
-    const user = { id: 2, username: username, role: 'admin' };
-    localStorage.setItem('cravebite_admin', JSON.stringify(user));
-    showToast('Admin logged in successfully!');
-
-    setTimeout(() => {
-        window.location.href = 'admin.html';
-    }, 1000);
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            if (data.user.role !== 'admin') {
+                showToast('Unauthorized. Not an admin.');
+                return;
+            }
+            localStorage.setItem('cravebite_admin', JSON.stringify(data.user));
+            showToast('Admin logged in successfully!');
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
+        } else {
+            showToast(data.error || 'Login failed');
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
+    }
 }
 
 async function handleRegister(username, password) {
-    // Mock register without backend
-    showToast('Registered successfully! Please login.');
-    setTimeout(() => window.location.href = 'login.html', 1500);
+    try {
+        const response = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role: 'user' })
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Registered successfully! Please login.');
+            setTimeout(() => window.location.href = 'login.html', 1500);
+        } else {
+            showToast(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
+    }
 }
 
 async function handleAdminRegister(username, password) {
-    // Mock admin register
-    showToast('Admin registered successfully! Please login.');
-    setTimeout(() => window.location.href = 'admin-login.html', 1500);
+    try {
+        const response = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role: 'admin' })
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Admin registered successfully! Please login.');
+            setTimeout(() => window.location.href = 'admin-login.html', 1500);
+        } else {
+            showToast(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
+    }
 }
 
 async function handleLogout() {
+    try {
+        await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {
+        console.error(e);
+    }
     localStorage.removeItem('cravebite_user');
     localStorage.removeItem('cravebite_location');
     window.location.href = 'login.html';
@@ -1253,6 +1327,11 @@ async function handleLogout() {
 
 async function handleAdminLogout(e) {
     if (e) e.preventDefault();
+    try {
+        await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {
+        console.error(e);
+    }
     localStorage.removeItem('cravebite_admin');
     window.location.href = 'admin-login.html';
 }
@@ -1309,16 +1388,23 @@ function restoreLocation() {
 }
 
 // --- Admin Order Management ---
-function renderAdminOrders() {
+async function renderAdminOrders() {
     const container = document.getElementById('admin-orders-list');
     if (!container) return;
 
-    const orders = JSON.parse(localStorage.getItem('cravebite_orders') || '[]');
+    try {
+        const response = await fetch(`${API_BASE}/admin/orders`, { headers: getAuthHeaders() });
+        if (!response.ok) {
+            container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">Unauthorized or failed to load orders.</p>';
+            return;
+        }
+        
+        const orders = await response.json();
 
-    if (orders.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No orders have been placed yet.</p>';
-        return;
-    }
+        if (orders.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">No orders have been placed yet.</p>';
+            return;
+        }
 
     let html = '';
     orders.forEach(order => {
@@ -1371,7 +1457,7 @@ function renderAdminOrders() {
                 
                 <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1); display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                     <label style="font-weight: 600;">Update Status:</label>
-                    <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-color); color: var(--text-primary);">
+                    <select onchange="updateOrderStatus(${order.db_id}, this.value)" style="padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc; background: var(--bg-color); color: var(--text-primary);">
                         <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
                         <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing...</option>
                         <option value="Out for Delivery" ${order.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
@@ -1384,19 +1470,26 @@ function renderAdminOrders() {
     });
 
     container.innerHTML = html;
+    } catch (error) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error loading orders.</p>';
+    }
 }
 
-function updateOrderStatus(orderId, newStatus) {
-    const orders = JSON.parse(localStorage.getItem('cravebite_orders') || '[]');
-    const orderIndex = orders.findIndex(o => o.id === orderId);
-
-    if (orderIndex !== -1) {
-        orders[orderIndex].status = newStatus;
-        orders[orderIndex].updatedAt = new Date().toISOString();
-        orders[orderIndex].statusHistory = orders[orderIndex].statusHistory || [];
-        orders[orderIndex].statusHistory.push({ status: newStatus, date: orders[orderIndex].updatedAt });
-        localStorage.setItem('cravebite_orders', JSON.stringify(orders));
-        showToast(`Order #${orderId} marked as ${newStatus}`);
-        renderAdminOrders();
+async function updateOrderStatus(orderDbId, newStatus) {
+    try {
+        const response = await fetch(`${API_BASE}/admin/orders/${orderDbId}/status`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        if (response.ok) {
+            showToast('Order status updated!');
+            renderAdminOrders();
+        } else {
+            showToast('Failed to update order status');
+        }
+    } catch (error) {
+        showToast('Error connecting to server');
     }
 }

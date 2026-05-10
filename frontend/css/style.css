@@ -208,7 +208,7 @@ nav a.active::after {
 
 /* Premium Hero Banner */
 .hero-banner {
-  background-image: url('../img/Untitled (1).jpeg');
+  background-image: url('../img/WhatsApp Image 2026-05-10 at 14.26.19.jpeg');
   background-color: #f26b27;
   background-size: cover;
   background-position: center;
@@ -216,7 +216,7 @@ nav a.active::after {
   border-radius: 30px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   position: relative;
   padding: 5rem 4rem;
   min-height: 300px;

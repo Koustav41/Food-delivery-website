@@ -1266,6 +1266,12 @@ function detectLocation() {
         return;
     }
 
+    // Check if in secure context (required for geolocation)
+    if (!window.isSecureContext) {
+        showToast('Location access requires HTTPS. Please serve the site over HTTPS or use localhost.');
+        return;
+    }
+
     if (locText) locText.textContent = 'Detecting...';
 
     navigator.geolocation.getCurrentPosition(async (position) => {
@@ -1293,7 +1299,22 @@ function detectLocation() {
         }
     }, (error) => {
         console.error('Geolocation error:', error);
-        showToast('Failed to get location. Please allow access.');
+        let message = 'Failed to get location.';
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                message = 'Location access denied. Please allow location access in your browser settings.';
+                break;
+            case error.POSITION_UNAVAILABLE:
+                message = 'Location information is unavailable.';
+                break;
+            case error.TIMEOUT:
+                message = 'Location request timed out.';
+                break;
+            default:
+                message = 'An unknown error occurred.';
+                break;
+        }
+        showToast(message);
         if (locText) locText.textContent = 'Set Location';
     });
 }

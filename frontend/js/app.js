@@ -5,6 +5,7 @@ let searchQuery = '';
 // Initialize cart from localStorage or empty array
 let cart = JSON.parse(localStorage.getItem('cravebite_cart')) || [];
 const API_BASE = 'http://localhost:5000/api';
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 const FALLBACK_FOOD_IMAGE = 'img/burger.png';
 const LOCAL_FOOD_IMAGES = [
     'img/burger.png',
@@ -77,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     updateAuthUI();
     restoreLocation();
+    initGoogleSignInWhenReady();
 
     const themeToggleBtn = document.getElementById('theme-toggle');
     if (themeToggleBtn) {
@@ -99,17 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+function getLocalUsers() {
+    return JSON.parse(localStorage.getItem('cravebite_users') || '[]');
+}
+
+function saveLocalUser(user) {
+    const users = getLocalUsers();
+    if (!users.some(u => u.username.toLowerCase() === user.username.toLowerCase())) {
+        users.push(user);
+        localStorage.setItem('cravebite_users', JSON.stringify(users));
+    }
+}
+
 function updateAuthUI() {
-    const userStr = localStorage.getItem('cravebite_user');
+    const userStr = localStorage.getItem('cravebite_user') || localStorage.getItem('cravebite_admin');
     if (!userStr) return;
 
     try {
         const user = JSON.parse(userStr);
-        const loginLinks = document.querySelectorAll('a[href="login.html"]');
+        const loginLinks = document.querySelectorAll('a[href="login.html"], a[href="admin-login.html"]');
+        const safeName = escapeHTML(user.username || 'User');
         loginLinks.forEach(link => {
             if (link.closest('nav')) {
-                link.href = "#";
-                link.innerHTML = `<i class="fa-solid fa-user"></i> ${user.username} <span style="font-size: 0.8rem; margin-left: 0.5rem; cursor: pointer; color: var(--primary-color);" onclick="handleLogout()">(Logout)</span>`;
+                link.href = user.role === 'admin' ? "admin.html" : "view-orders.html";
+                link.innerHTML = `<i class="fa-solid fa-user-check"></i> ${safeName}${user.role === 'admin' ? ' (Admin)' : ''} <span style="font-size: 0.8rem; margin-left: 0.4rem; cursor: pointer; color: var(--primary-color);" onclick="handleLogout(event)">(Logout)</span>`;
             }
         });
     } catch (e) {
@@ -1257,23 +1272,207 @@ function showToast(message) {
 
 // --- Auth Handling ---
 async function handleLogin(username, password) {
-    // Mock login without backend
-    const user = { id: username.trim().toLowerCase(), username: username, role: 'user' };
-    localStorage.setItem('cravebite_user', JSON.stringify(user));
-    showToast('Logged in successfully!');
+    const trimmedUser = username ? username.trim() : '';
+    if (!trimmedUser || !password) {
+        showToast('Please enter both username and password');
+        return;
+    }
 
-    // Auto-detect location on login
-    detectLocation();
+    // 1. Try backend login
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: trimmedUser, password })
+        });
 
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('cravebite_user', JSON.stringify(data.user));
+            if (data.user.role === 'admin') {
+                localStorage.setItem('cravebite_admin', JSON.stringify(data.user));
+            }
+            showToast('Logged in successfully!');
+            detectLocation();
+            setTimeout(() => {
+                window.location.href = data.user.role === 'admin' ? 'admin.html' : 'index.html';
+            }, 1000);
+            return;
+        }
+    } catch (error) {
+        console.log('Backend login check offline or unavailable.');
+    }
+
+    // 2. Local fallback login / registered user check
+    const users = getLocalUsers();
+    const existingUser = users.find(u => u.username.toLowerCase() === trimmedUser.toLowerCase());
+
+    if (existingUser) {
+        if (existingUser.password === password) {
+            const userObj = { id: existingUser.id, username: existingUser.username, role: existingUser.role || 'user' };
+            localStorage.setItem('cravebite_user', JSON.stringify(userObj));
+            if (userObj.role === 'admin') {
+                localStorage.setItem('cravebite_admin', JSON.stringify(userObj));
+            }
+            showToast(`Welcome back, ${existingUser.username}!`);
+            setTimeout(() => {
+                window.location.href = userObj.role === 'admin' ? 'admin.html' : 'index.html';
+            }, 1000);
+            return;
+        } else {
+            showToast('Invalid password for this username.');
+            return;
+        }
+    }
+
+    // 3. Fallback: If user enters a username/password not yet registered, create and log them in
+    const newUser = { id: Date.now(), username: trimmedUser, password: password, role: 'user' };
+    saveLocalUser(newUser);
+    localStorage.setItem('cravebite_user', JSON.stringify({ id: newUser.id, username: trimmedUser, role: 'user' }));
+    showToast(`Welcome, ${trimmedUser}! Account created & logged in.`);
     setTimeout(() => {
         window.location.href = 'index.html';
     }, 1000);
 }
 
+async function handleGoogleCredentialResponse(response) {
+    if (!response || !response.credential) {
+        showToast('Google sign-in failed. Please try again.');
+        return;
+    }
+
+    try {
+        const result = await fetch(`${API_BASE}/auth/google`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ credential: response.credential })
+        });
+
+        const data = await result.json();
+        if (result.ok) {
+            localStorage.setItem('cravebite_user', JSON.stringify(data.user));
+            showToast('Logged in with Google successfully!');
+            detectLocation();
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            return;
+        }
+    } catch (error) {
+        console.error('Google login error:', error);
+    }
+
+    handleGoogleDemoLogin();
+}
+
+function handleGoogleDemoLogin() {
+    let email = prompt("Enter your Google Name or Email to sign in:", "Koustav");
+    if (!email || !email.trim()) return;
+    const username = email.trim().split('@')[0];
+    const userObj = { id: Date.now(), username: username, role: 'user' };
+    localStorage.setItem('cravebite_user', JSON.stringify(userObj));
+    showToast(`Logged in via Google as ${username}!`);
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1000);
+}
+
+function initGoogleSignIn() {
+    const googleButtonContainer = document.getElementById('google-signin-btn');
+    const customGoogleButton = document.getElementById('custom-google-btn');
+
+    if (!googleButtonContainer) return;
+
+    if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+        if (customGoogleButton) {
+            customGoogleButton.addEventListener('click', () => {
+                handleGoogleDemoLogin();
+            });
+        }
+        return;
+    }
+
+    try {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup',
+            auto_select: false,
+            cancel_on_tap_outside: false
+        });
+
+        google.accounts.id.renderButton(googleButtonContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%'
+        });
+    } catch (e) {
+        console.log('Google Auth init note:', e);
+    }
+
+    if (customGoogleButton) {
+        customGoogleButton.addEventListener('click', () => {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                google.accounts.id.prompt();
+            } else {
+                handleGoogleDemoLogin();
+            }
+        });
+    }
+}
+
+function initGoogleSignInWhenReady(attempt = 0) {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+        initGoogleSignIn();
+        return;
+    }
+
+    if (attempt >= 5) {
+        initGoogleSignIn();
+        return;
+    }
+
+    setTimeout(() => initGoogleSignInWhenReady(attempt + 1), 250);
+}
+
 async function handleAdminLogin(username, password) {
-    // Mock admin login
-    const user = { id: 2, username: username, role: 'admin' };
-    localStorage.setItem('cravebite_admin', JSON.stringify(user));
+    const trimmedUser = username ? username.trim() : '';
+    if (!trimmedUser || !password) {
+        showToast('Please enter admin username and password');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: trimmedUser, password })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.user && data.user.role === 'admin') {
+                localStorage.setItem('cravebite_admin', JSON.stringify(data.user));
+                localStorage.setItem('cravebite_user', JSON.stringify(data.user));
+                showToast('Admin logged in successfully!');
+                setTimeout(() => window.location.href = 'admin.html', 1000);
+                return;
+            }
+        }
+    } catch (e) {
+        console.log('Backend admin login skipped/offline.');
+    }
+
+    const adminUser = { id: Date.now(), username: trimmedUser, role: 'admin' };
+    saveLocalUser({ id: adminUser.id, username: trimmedUser, password: password, role: 'admin' });
+    localStorage.setItem('cravebite_admin', JSON.stringify(adminUser));
+    localStorage.setItem('cravebite_user', JSON.stringify(adminUser));
     showToast('Admin logged in successfully!');
 
     setTimeout(() => {
@@ -1282,27 +1481,69 @@ async function handleAdminLogin(username, password) {
 }
 
 async function handleRegister(username, password) {
-    // Mock register without backend
-    showToast('Registered successfully! Please login.');
-    setTimeout(() => window.location.href = 'login.html', 1500);
+    const trimmedUser = username ? username.trim() : '';
+    if (!trimmedUser || !password) {
+        showToast('Please enter both username and password.');
+        return;
+    }
+
+    try {
+        await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: trimmedUser, password })
+        });
+    } catch (e) {
+        console.log('Backend register note: using local registration fallback.');
+    }
+
+    const users = getLocalUsers();
+    if (users.some(u => u.username.toLowerCase() === trimmedUser.toLowerCase())) {
+        showToast('Username already exists. Please log in.');
+        return;
+    }
+
+    const newUser = { id: Date.now(), username: trimmedUser, password: password, role: 'user' };
+    saveLocalUser(newUser);
+
+    showToast('Registered successfully! Please log in.');
+    setTimeout(() => window.location.href = 'login.html', 1200);
 }
 
 async function handleAdminRegister(username, password) {
-    // Mock admin register
-    showToast('Admin registered successfully! Please login.');
-    setTimeout(() => window.location.href = 'admin-login.html', 1500);
+    const trimmedUser = username ? username.trim() : '';
+    if (!trimmedUser || !password) {
+        showToast('Please enter admin username and password.');
+        return;
+    }
+
+    const adminUser = { id: Date.now(), username: trimmedUser, password: password, role: 'admin' };
+    saveLocalUser(adminUser);
+    showToast('Admin profile registered successfully! Please log in.');
+    setTimeout(() => window.location.href = 'admin-login.html', 1200);
 }
 
-async function handleLogout() {
+async function handleLogout(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    try {
+        await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
+    } catch (err) {
+        // Silent catch
+    }
     localStorage.removeItem('cravebite_user');
+    localStorage.removeItem('cravebite_admin');
     localStorage.removeItem('cravebite_location');
-    window.location.href = 'login.html';
+    showToast('Logged out successfully');
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 600);
 }
 
 async function handleAdminLogout(e) {
-    if (e) e.preventDefault();
-    localStorage.removeItem('cravebite_admin');
-    window.location.href = 'admin-login.html';
+    await handleLogout(e);
 }
 
 // --- Location Services ---

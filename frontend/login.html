@@ -19,18 +19,22 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         .auth-container {
-            max-width: 400px;
+            max-width: 420px;
             margin: 4rem auto;
-            background: var(--surface-color);
+            background: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
             text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            backdrop-filter: blur(14px);
         }
 
         .auth-container h2 {
-            margin-bottom: 2rem;
-            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            color: #111827;
+            font-size: 2rem;
+            letter-spacing: -0.03em;
         }
 
         .form-group {
@@ -41,33 +45,98 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
+            font-weight: 700;
+            color: #374151;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            padding: 0.95rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            color: #111827;
+            background: #f8fafc;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.95rem 1rem;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #fb7185 0%, #f97316 100%);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 30px rgba(249, 115, 22, 0.18);
+        }
+
+        .google-auth-wrapper {
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .google-auth-note {
+            margin-bottom: 0.8rem;
+            color: #6b7280;
+            font-size: 0.92rem;
+        }
+
+        #custom-google-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.95rem 1rem;
+            border-radius: 14px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #111827;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        #custom-google-btn:hover {
+            transform: translateY(-1px);
+            border-color: #9ca3af;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
         }
 
         .auth-link {
-            margin-top: 1.5rem;
-            display: block;
-            color: var(--text-secondary);
+            margin-top: 1rem;
+            color: #6b7280;
+            font-size: 0.95rem;
         }
 
         .auth-link a {
-            color: var(--primary-color);
+            color: #2563eb;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
         }
     </style>
 </head>
@@ -106,14 +175,20 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" required>
+                    <input type="text" id="username" placeholder="Enter your username" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" placeholder="Enter your password" required>
                 </div>
                 <button type="submit" class="btn" style="width: 100%;">Login</button>
             </form>
+
+            <div class="google-auth-wrapper">
+                <div class="google-auth-note">Sign in faster with Google</div>
+                <div id="google-signin-btn"></div>
+
+            </div>
             <div class="auth-link">
                 Don't have an account? <a href="register.html">Sign up</a>
             </div>
@@ -125,12 +200,24 @@
 
     <div class="toast-container" id="toast-container"></div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/app.js"></script>
     <script>
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             handleLogin(document.getElementById('username').value, document.getElementById('password').value);
         });
+
+        const customGoogleBtn = document.getElementById('custom-google-btn');
+        if (customGoogleBtn) {
+            customGoogleBtn.addEventListener('click', () => {
+                if (window.google && window.google.accounts && window.google.accounts.id) {
+                    google.accounts.id.prompt();
+                } else {
+                    handleGoogleDemoLogin();
+                }
+            });
+        }
     </script>
 </body>
 

@@ -5,7 +5,7 @@ let searchQuery = '';
 // Initialize cart from localStorage or empty array
 let cart = JSON.parse(localStorage.getItem('cravebite_cart')) || [];
 const API_BASE = 'http://localhost:5000/api';
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '603341860384-n993cglp7791g5f4kn0or3ma7ge0s38p.apps.googleusercontent.com';
 const FALLBACK_FOOD_IMAGE = 'img/burger.png';
 const LOCAL_FOOD_IMAGES = [
     'img/burger.png',
@@ -317,7 +317,7 @@ function fetchFoods() {
             is_veg: false,
             rating: 4.9
         },
-         {
+        {
             id: 17,
             title: "Mutton Biryani",
             description: "Aromatic rice dish layered with tender mutton and a rich, spiced sauce.",
@@ -325,7 +325,7 @@ function fetchFoods() {
             image: "img/Gemini_Generated_Image_yjcvbyjcvbyjcvby.png",
             rating: 4.9
         },
-         {
+        {
             id: 18,
             title: "Chicken Momos(8pcs.)",
             description: "Steamed dumplings filled with minced chicken and vegetables, served with a spicy dipping sauce.",
@@ -333,7 +333,7 @@ function fetchFoods() {
             image: "img/Gemini_Generated_Image_x18echx18echx18e.png",
             rating: 4.5
         },
-         {
+        {
             id: 19,
             title: "Veg Momos(8pcs.)",
             description: "Steamed dumplings filled with minced vegetables, served with a spicy dipping sauce.",
@@ -341,7 +341,7 @@ function fetchFoods() {
             image: "img/Gemini_Generated_Image_np71bnnp71bnnp71.png",
             rating: 4.3
         },
-         {
+        {
             id: 20,
             title: "Gourment ice cream(2 scoops)",
             description: "Rich and creamy ice cream available in various flavors, perfect for a sweet ending to your meal.",
@@ -349,7 +349,7 @@ function fetchFoods() {
             image: "img/Gemini_Generated_Image_tuahmbtuahmbtuah.png",
             rating: 4.9
         },
-        
+
     ];
 
     if (localFoods) {
@@ -1589,7 +1589,7 @@ function detectLocation() {
     }, (error) => {
         console.error('Geolocation error:', error);
         let message = 'Failed to get location.';
-        switch(error.code) {
+        switch (error.code) {
             case error.PERMISSION_DENIED:
                 message = 'Location access denied. Please allow location access in your browser settings.';
                 break;

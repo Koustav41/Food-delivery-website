@@ -39,7 +39,22 @@ def create_app():
     def status():
         return jsonify({"status": "Backend is running", "phase": 3})
 
-    # --- Phase 3: Authentication ---
+    def user_to_dict(u):
+        if not u:
+            return None
+        return {
+            'id': u.id,
+            'username': u.username,
+            'role': u.role,
+            'full_name': u.full_name or '',
+            'email': u.email or (u.username if '@' in u.username else ''),
+            'phone': u.phone or '',
+            'address': u.address or '',
+            'avatar': u.avatar or 'img/burger.png',
+            'created_at': u.created_at.isoformat() if u.created_at else None
+        }
+
+    # --- Phase 3: Authentication & Profile ---
     @app.route('/api/register', methods=['POST'])
     def register():
         data = request.get_json()
@@ -50,10 +65,18 @@ def create_app():
             return jsonify({'error': 'Username already exists'}), 400
             
         hashed_password = generate_password_hash(data['password'])
-        new_user = User(username=data['username'], password_hash=hashed_password)
+        email_val = data.get('email', data['username'] if '@' in data['username'] else '')
+        new_user = User(
+            username=data['username'],
+            password_hash=hashed_password,
+            full_name=data.get('full_name', ''),
+            email=email_val,
+            phone=data.get('phone', ''),
+            address=data.get('address', '')
+        )
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'message': 'User registered successfully'}), 201
+        return jsonify({'message': 'User registered successfully', 'user': user_to_dict(new_user)}), 201
 
     @app.route('/api/login', methods=['POST'])
     def login():
@@ -66,7 +89,7 @@ def create_app():
             session['user_id'] = user.id
             return jsonify({
                 'message': 'Logged in successfully', 
-                'user': {'id': user.id, 'username': user.username, 'role': user.role}
+                'user': user_to_dict(user)
             }), 200
             
         return jsonify({'error': 'Invalid username or password'}), 401
@@ -102,13 +125,20 @@ def create_app():
         user = User.query.filter_by(username=email).first()
         if not user:
             random_password = uuid4().hex
-            user = User(username=email, password_hash=generate_password_hash(random_password))
+            user = User(
+                username=email,
+                email=email,
+                full_name=payload.get('name', ''),
+                avatar=payload.get('picture', 'img/burger.png'),
+                password_hash=generate_password_hash(random_password)
+            )
             db.session.add(user)
             db.session.commit()
 
+        session['user_id'] = user.id
         return jsonify({
             'message': 'Logged in via Google',
-            'user': {'id': user.id, 'username': user.username, 'role': user.role}
+            'user': user_to_dict(user)
         }), 200
 
     @app.route('/api/logout', methods=['POST'])
@@ -116,7 +146,6 @@ def create_app():
         session.pop('user_id', None)
         return jsonify({'message': 'Logged out successfully'}), 200
 
-    # --- Phase 4: Food Display ---
     @app.route('/api/me', methods=['GET'])
     def get_current_user():
         if 'user_id' not in session:
@@ -124,7 +153,61 @@ def create_app():
         user = db.session.get(User, session['user_id'])
         if not user:
             return jsonify({'user': None}), 200
-        return jsonify({'user': {'id': user.id, 'username': user.username, 'role': user.role}}), 200
+        return jsonify({'user': user_to_dict(user)}), 200
+
+    # --- Profile Routes ---
+    @app.route('/api/profile', methods=['GET'])
+    def get_profile():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        return jsonify({'user': user_to_dict(user)}), 200
+
+    @app.route('/api/profile', methods=['PUT'])
+    def update_profile():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json() or {}
+        if 'full_name' in data: user.full_name = data['full_name']
+        if 'email' in data: user.email = data['email']
+        if 'phone' in data: user.phone = data['phone']
+        if 'address' in data: user.address = data['address']
+        if 'avatar' in data: user.avatar = data['avatar']
+        
+        db.session.commit()
+        return jsonify({'message': 'Profile updated successfully', 'user': user_to_dict(user)}), 200
+
+    @app.route('/api/profile/password', methods=['PUT'])
+    def change_password():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Unauthorized'}), 401
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json() or {}
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        
+        if not old_password or not new_password:
+            return jsonify({'error': 'Both current and new passwords are required'}), 400
+            
+        if not check_password_hash(user.password_hash, old_password):
+            return jsonify({'error': 'Incorrect current password'}), 400
+            
+        if len(new_password) < 6:
+            return jsonify({'error': 'New password must be at least 6 characters'}), 400
+            
+        user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        return jsonify({'message': 'Password changed successfully'}), 200
+
 
     # --- Phase 4: Food Display & Management ---
     @app.route('/api/foods', methods=['GET'])

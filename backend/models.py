@@ -8,7 +8,13 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='user') # 'user' or 'admin'
+    full_name = db.Column(db.String(120), nullable=True)
+    email = db.Column(db.String(120), nullable=True)
+    phone = db.Column(db.String(30), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    avatar = db.Column(db.String(255), nullable=True, default='img/burger.png')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class FoodItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)

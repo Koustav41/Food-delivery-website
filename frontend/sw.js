@@ -1,9 +1,11 @@
-const CACHE_NAME = 'cravebite-cache-v3';
+const CACHE_NAME = 'cravebite-cache-v4';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/profile.html',
   '/css/style.css',
   '/js/app.js',
+  '/profile.js',
   '/manifest.webmanifest'
 ];
 

@@ -120,11 +120,11 @@ function updateAuthUI() {
     try {
         const user = JSON.parse(userStr);
         const loginLinks = document.querySelectorAll('a[href="login.html"], a[href="admin-login.html"]');
-        const safeName = escapeHTML(user.username || 'User');
+        const safeName = escapeHTML(user.full_name || user.username || 'User');
         loginLinks.forEach(link => {
             if (link.closest('nav')) {
-                link.href = user.role === 'admin' ? "admin.html" : "view-orders.html";
-                link.innerHTML = `<i class="fa-solid fa-user-check"></i> ${safeName}${user.role === 'admin' ? ' (Admin)' : ''} <span style="font-size: 0.8rem; margin-left: 0.4rem; cursor: pointer; color: var(--primary-color);" onclick="handleLogout(event)">(Logout)</span>`;
+                link.href = user.role === 'admin' ? "admin.html" : "profile.html";
+                link.innerHTML = `<i class="fa-solid fa-user-circle"></i> ${safeName}${user.role === 'admin' ? ' (Admin)' : ''} <span style="font-size: 0.8rem; margin-left: 0.4rem; cursor: pointer; color: var(--primary-color);" onclick="handleLogout(event)">(Logout)</span>`;
             }
         });
     } catch (e) {
@@ -1271,6 +1271,27 @@ function showToast(message) {
 }
 
 // --- Auth Handling ---
+function resetLocalUserPassword(e) {
+    if (e) e.preventDefault();
+    const username = prompt("Enter your username to reset local password:");
+    if (!username || !username.trim()) return;
+    const newPass = prompt(`Enter new password for '${username.trim()}':`);
+    if (!newPass || newPass.length < 6) {
+        showToast("Password must be at least 6 characters.", "error");
+        return;
+    }
+    const users = getLocalUsers();
+    const idx = users.findIndex(u => u.username.toLowerCase() === username.trim().toLowerCase());
+    if (idx !== -1) {
+        users[idx].password = newPass;
+        localStorage.setItem('cravebite_users', JSON.stringify(users));
+        showToast(`Password for ${username.trim()} updated! You can now log in.`, "success");
+    } else {
+        saveLocalUser({ id: Date.now(), username: username.trim(), password: newPass, role: 'user' });
+        showToast(`Account '${username.trim()}' created with new password! Log in now.`, "success");
+    }
+}
+
 async function handleLogin(username, password) {
     const trimmedUser = username ? username.trim() : '';
     if (!trimmedUser || !password) {
@@ -1295,11 +1316,25 @@ async function handleLogin(username, password) {
             if (data.user.role === 'admin') {
                 localStorage.setItem('cravebite_admin', JSON.stringify(data.user));
             }
+            // Sync password to local storage for offline continuity
+            const users = getLocalUsers();
+            const existingIdx = users.findIndex(u => u.username.toLowerCase() === trimmedUser.toLowerCase());
+            if (existingIdx !== -1) {
+                users[existingIdx].password = password;
+            } else {
+                users.push({ id: data.user.id, username: trimmedUser, password, role: data.user.role || 'user' });
+            }
+            localStorage.setItem('cravebite_users', JSON.stringify(users));
+
             showToast('Logged in successfully!');
             detectLocation();
             setTimeout(() => {
                 window.location.href = data.user.role === 'admin' ? 'admin.html' : 'index.html';
             }, 1000);
+            return;
+        } else if (response.status === 401) {
+            const data = await response.json().catch(() => ({}));
+            showToast(data.error || 'Invalid username or password.');
             return;
         }
     } catch (error) {
@@ -1323,7 +1358,7 @@ async function handleLogin(username, password) {
             }, 1000);
             return;
         } else {
-            showToast('Invalid password for this username.');
+            showToast('Invalid password for this username. Click "Reset Password" if needed.', 'error');
             return;
         }
     }

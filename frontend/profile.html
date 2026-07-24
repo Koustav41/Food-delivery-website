@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CraveBite">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <title>My Profile - CraveBite</title>
+    <link rel="shortcut icon" type="jpg" href="img/Cravebite logo(new1) (2).png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="bg-mesh"></div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="container nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fa-solid fa-burger"></i> <span>CraveBite</span>
+                </a>
+                <div class="header-location" id="header-location" onclick="detectLocation()"
+                    title="Click to detect location">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span id="location-text">Set Location</span>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="view-orders.html">View Orders</a></li>
+                    <li><a href="profile.html" class="active"><i class="fa-solid fa-user-circle"></i> Profile</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-count" id="nav-cart-count">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button id="theme-toggle" class="theme-btn" type="button" aria-label="Toggle theme">
+                            <i class="fas fa-sun"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Profile Main Container -->
+    <main class="container profile-page-wrapper">
+
+        <!-- Hero Header Card -->
+        <div class="profile-hero-card">
+            <div class="profile-hero-top">
+                <div class="profile-avatar-wrapper">
+                    <img src="img/burger.png" alt="User Avatar" id="profile-avatar-img" class="profile-avatar-img">
+                    <button class="avatar-edit-btn" id="avatar-edit-trigger" title="Change Profile Picture">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                </div>
+                <div class="profile-identity">
+                    <h1 class="profile-username-heading">
+                        <span id="profile-display-name">Loading...</span>
+                        <span class="user-badge gold" id="profile-role-badge">Gold Member</span>
+                    </h1>
+                    <p class="profile-email-text">
+                        <i class="fa-solid fa-envelope"></i> <span id="profile-display-email">user@cravebite.com</span>
+                    </p>
+                    <p class="profile-joined-text">
+                        <i class="fa-solid fa-calendar-alt"></i> Member since <span id="profile-joined-date">2026</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="profile-stats-grid">
+                <div class="profile-stat-card">
+                    <div class="stat-icon-wrapper orders">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-total-orders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+
+                <div class="profile-stat-card">
+                    <div class="stat-icon-wrapper spent">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-total-spent">₹0</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+
+                <div class="profile-stat-card">
+                    <div class="stat-icon-wrapper addresses">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-saved-addresses">1</div>
+                        <div class="stat-label">Saved Addresses</div>
+                    </div>
+                </div>
+
+                <div class="profile-stat-card">
+                    <div class="stat-icon-wrapper member">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-member-tier">Gold</div>
+                        <div class="stat-label">Membership Tier</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="profile-nav-tabs">
+            <button class="profile-tab-btn active" data-tab="pane-personal">
+                <i class="fa-solid fa-user-gear"></i> Personal Info
+            </button>
+            <button class="profile-tab-btn" data-tab="pane-addresses">
+                <i class="fa-solid fa-house"></i> Delivery Addresses
+            </button>
+            <button class="profile-tab-btn" data-tab="pane-orders">
+                <i class="fa-solid fa-clock-rotate-left"></i> Recent Orders
+            </button>
+            <button class="profile-tab-btn" data-tab="pane-security">
+                <i class="fa-solid fa-shield-halved"></i> Security & Password
+            </button>
+        </div>
+
+        <!-- Tab 1: Personal Information -->
+        <div class="profile-tab-pane active" id="pane-personal">
+            <div class="profile-section-card">
+                <div class="section-card-title">
+                    <span><i class="fa-solid fa-id-card"></i> Edit Profile Information</span>
+                </div>
+                <form id="personal-info-form" onsubmit="handleProfileUpdate(event)">
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group">
+                            <label for="input-full-name"><i class="fa-solid fa-user"></i> Full Name</label>
+                            <input type="text" id="input-full-name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="input-username"><i class="fa-solid fa-at"></i> Username</label>
+                            <input type="text" id="input-username" readonly title="Username cannot be changed">
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="input-email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                            <input type="email" id="input-email" placeholder="name@example.com" required>
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="input-phone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+                            <input type="tel" id="input-phone" placeholder="+91 98765 43210">
+                        </div>
+                        <div class="profile-form-group form-group-full">
+                            <label for="input-default-address"><i class="fa-solid fa-location-dot"></i> Primary Delivery
+                                Address</label>
+                            <textarea id="input-default-address" rows="3"
+                                placeholder="Flat No, Building, Street, City, Pincode"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-action-row">
+                        <button type="submit" class="btn-profile-save">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab 2: Delivery Addresses -->
+        <div class="profile-tab-pane" id="pane-addresses">
+            <div class="profile-section-card">
+                <div class="section-card-title">
+                    <span><i class="fa-solid fa-map-location-dot"></i> Saved Addresses</span>
+                    <button class="btn-profile-save" style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+                        onclick="showAddAddressModal()">
+                        <i class="fa-solid fa-plus"></i> Add New Address
+                    </button>
+                </div>
+                <div class="addresses-grid" id="addresses-container">
+                    <!-- Injected by profile.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Recent Orders -->
+        <div class="profile-tab-pane" id="pane-orders">
+            <div class="profile-section-card">
+                <div class="section-card-title">
+                    <span><i class="fa-solid fa-bag-shopping"></i> Order History</span>
+                    <a href="view-orders.html"
+                        style="font-size: 0.9rem; color: var(--primary-color); text-decoration: none;">
+                        View All Orders <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="recent-orders-list" id="recent-orders-container">
+                    <!-- Injected by profile.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Security & Password -->
+        <div class="profile-tab-pane" id="pane-security">
+            <div class="profile-section-card">
+                <div class="section-card-title">
+                    <span><i class="fa-solid fa-key"></i> Change Password</span>
+                </div>
+                <form id="password-change-form" onsubmit="handlePasswordChange(event)">
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group form-group-full">
+                            <label for="input-current-password"><i class="fa-solid fa-lock"></i> Current
+                                Password</label>
+                            <input type="password" id="input-current-password" placeholder="Enter current password"
+                                required>
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="input-new-password"><i class="fa-solid fa-key"></i> New Password</label>
+                            <input type="password" id="input-new-password" placeholder="Minimum 6 characters"
+                                minlength="6" required>
+                        </div>
+                        <div class="profile-form-group">
+                            <label for="input-confirm-password"><i class="fa-solid fa-check-double"></i> Confirm New
+                                Password</label>
+                            <input type="password" id="input-confirm-password" placeholder="Re-enter new password"
+                                minlength="6" required>
+                        </div>
+                    </div>
+                    <div class="form-action-row" style="justify-content: space-between; align-items: center;">
+                        <button type="button" class="btn-address-action delete" onclick="triggerAccountLogout()"
+                            style="padding: 0.75rem 1.2rem;">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+                        </button>
+                        <button type="submit" class="btn-profile-save">
+                            <i class="fa-solid fa-shield-check"></i> Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Avatar Picker Modal -->
+    <div class="avatar-modal-overlay" id="avatar-modal-overlay">
+        <div class="avatar-modal">
+            <h2 style="font-size: 1.4rem; font-weight: 700;"><i class="fa-solid fa-image"></i> Choose Profile Avatar
+            </h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Select a profile picture from our default
+                gallery or paste an image URL.</p>
+
+            <div class="avatar-grid" id="avatar-grid">
+                <img src="img/burger.png" alt="Burger" class="avatar-option-img selected"
+                    onclick="selectAvatarOption(this, 'img/burger.png')">
+                <img src="img/pizza.png" alt="Pizza" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/pizza.png')">
+                <img src="img/salad.png" alt="Salad" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/salad.png')">
+                <img src="img/Paneer-Tikka-Featured-1.jpg" alt="Paneer Tikka" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/Paneer-Tikka-Featured-1.jpg')">
+                <img src="img/Spaghetti-Carbonara-Plated.jpg" alt="Spaghetti" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/Spaghetti-Carbonara-Plated.jpg')">
+                <img src="img/garlic-naan.png" alt="garlic naan" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/garlic-naan.png')">
+                <img src="img/FZgBhWpXwAEDjBm.jpg" alt="Dish 2" class="avatar-option-img"
+                    onclick="selectAvatarOption(this, 'img/FZgBhWpXwAEDjBm.jpg')">
+            </div>
+
+            <div class="profile-form-group">
+                <label for="custom-avatar-url">Custom Image URL</label>
+                <input type="url" id="custom-avatar-url" placeholder="https://example.com/my-photo.jpg">
+            </div>
+
+            <div class="form-action-row" style="margin-top: 0.5rem;">
+                <button type="button" class="btn-address-action" onclick="closeAvatarModal()">Cancel</button>
+                <button type="button" class="btn-profile-save" onclick="applyAvatarSelection()">
+                    <i class="fa-solid fa-check"></i> Apply Avatar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div class="avatar-modal-overlay" id="address-modal-overlay">
+        <div class="avatar-modal">
+            <h2 style="font-size: 1.4rem; font-weight: 700;"><i class="fa-solid fa-house-chimney-medical"></i> Add
+                Delivery Address</h2>
+            <form id="add-address-form" onsubmit="saveNewAddress(event)">
+                <div class="profile-form-group" style="margin-bottom: 1rem;">
+                    <label for="address-tag-input">Address Label (e.g. Home, Work, Gym)</label>
+                    <input type="text" id="address-tag-input" placeholder="Home" required>
+                </div>
+                <div class="profile-form-group" style="margin-bottom: 1rem;">
+                    <label for="address-full-input">Full Address</label>
+                    <textarea id="address-full-input" rows="3"
+                        placeholder="Enter complete house number, street, area, city, pincode" required></textarea>
+                </div>
+                <div class="form-action-row">
+                    <button type="button" class="btn-address-action" onclick="closeAddressModal()">Cancel</button>
+                    <button type="submit" class="btn-profile-save">
+                        <i class="fa-solid fa-plus"></i> Save Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <p>Delivering happiness to your doorstep with hot, fresh, and delicious food.</p>
+            </div>
+            <div class="footer-row">
+                <h3>Quick Links</h3>
+
+                <div>
+                    <p><a href="index.html">Home</a></p>
+                </div>
+                <div>
+                    <p><a href="view-orders.html">My Orders</a></p>
+                </div>
+                <div>
+                    <p><a href="profile.html">My Profile</a></p>
+                </div>
+                <div>
+                    <p><a href="cart.html">Cart</a></p>
+                </div>
+
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CraveBite. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Core App JS & Profile Page JS -->
+    <script src="js/app.js"></script>
+    <script src="profile.js"></script>
+</body>
+
+</html>

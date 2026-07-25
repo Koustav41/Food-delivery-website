@@ -110,7 +110,12 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required>
+                    <div class="password-toggle-wrapper" style="position: relative; width: 100%; display: block;">
+                        <input type="password" id="password" placeholder="Enter your password" required autocomplete="new-password" style="width: 100%; padding-right: 2.75rem !important;">
+                        <button type="button" class="password-toggle-btn" onclick="window.togglePasswordVisibility(this, event)" aria-label="Show password" title="Show password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 1.1rem; padding: 0.3rem; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                            <i class="fa-solid fa-eye" style="pointer-events: none;"></i>
+                        </button>
+                    </div>
                 </div>
                 <button type="submit" class="btn" style="width: 100%;">Sign Up</button>
             </form>

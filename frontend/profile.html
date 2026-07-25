@@ -227,19 +227,31 @@
                         <div class="profile-form-group form-group-full">
                             <label for="input-current-password"><i class="fa-solid fa-lock"></i> Current
                                 Password</label>
-                            <input type="password" id="input-current-password" placeholder="Enter current password"
-                                required>
+                            <div class="password-toggle-wrapper" style="position: relative; width: 100%; display: block;">
+                                <input type="password" id="input-current-password" placeholder="Enter current password" required style="width: 100%; padding-right: 2.75rem !important;">
+                                <button type="button" class="password-toggle-btn" onclick="window.togglePasswordVisibility(this, event)" aria-label="Show password" title="Show password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 1.1rem; padding: 0.3rem; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                                    <i class="fa-solid fa-eye" style="pointer-events: none;"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="profile-form-group">
                             <label for="input-new-password"><i class="fa-solid fa-key"></i> New Password</label>
-                            <input type="password" id="input-new-password" placeholder="Minimum 6 characters"
-                                minlength="6" required>
+                            <div class="password-toggle-wrapper" style="position: relative; width: 100%; display: block;">
+                                <input type="password" id="input-new-password" placeholder="Minimum 6 characters" minlength="6" required style="width: 100%; padding-right: 2.75rem !important;">
+                                <button type="button" class="password-toggle-btn" onclick="window.togglePasswordVisibility(this, event)" aria-label="Show password" title="Show password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 1.1rem; padding: 0.3rem; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                                    <i class="fa-solid fa-eye" style="pointer-events: none;"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="profile-form-group">
                             <label for="input-confirm-password"><i class="fa-solid fa-check-double"></i> Confirm New
                                 Password</label>
-                            <input type="password" id="input-confirm-password" placeholder="Re-enter new password"
-                                minlength="6" required>
+                            <div class="password-toggle-wrapper" style="position: relative; width: 100%; display: block;">
+                                <input type="password" id="input-confirm-password" placeholder="Re-enter new password" minlength="6" required style="width: 100%; padding-right: 2.75rem !important;">
+                                <button type="button" class="password-toggle-btn" onclick="window.togglePasswordVisibility(this, event)" aria-label="Show password" title="Show password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 1.1rem; padding: 0.3rem; display: flex; align-items: center; justify-content: center; z-index: 10;">
+                                    <i class="fa-solid fa-eye" style="pointer-events: none;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-action-row" style="justify-content: space-between; align-items: center;">

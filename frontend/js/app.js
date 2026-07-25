@@ -339,6 +339,7 @@ function fetchFoods() {
             description: "Steamed dumplings filled with minced vegetables, served with a spicy dipping sauce.",
             price: 80,
             image: "img/Gemini_Generated_Image_np71bnnp71bnnp71.png",
+            is_veg: true,
             rating: 4.3
         },
         {
@@ -1745,3 +1746,45 @@ function updateOrderStatus(orderId, newStatus) {
         renderAdminOrders();
     }
 }
+
+/**
+ * Toggles password input visibility between password (hidden) and text (visible)
+ * @param {HTMLElement} toggleBtn The button or icon clicked
+ * @param {Event} [event] Optional click event
+ */
+window.togglePasswordVisibility = function (toggleBtn, event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    if (!toggleBtn) return;
+
+    // Ensure we reference the button element
+    const btn = toggleBtn.closest('.password-toggle-btn') || toggleBtn;
+    const wrapper = btn.closest('.password-toggle-wrapper') || btn.parentElement;
+    if (!wrapper) return;
+
+    const input = wrapper.querySelector('input');
+    if (!input) return;
+
+    const icon = btn.querySelector('i') || (btn.tagName && btn.tagName.toLowerCase() === 'i' ? btn : null);
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.className = 'fa-solid fa-eye-slash';
+        }
+        btn.setAttribute('aria-label', 'Hide password');
+        btn.setAttribute('title', 'Hide password');
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.className = 'fa-solid fa-eye';
+        }
+        btn.setAttribute('aria-label', 'Show password');
+        btn.setAttribute('title', 'Show password');
+    }
+};
+
+
+
